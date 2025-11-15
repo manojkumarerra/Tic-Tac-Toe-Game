@@ -1,12 +1,10 @@
-
 let boxes = document.querySelectorAll(".box");
 let resetBtn = document.querySelector("#reset");
 let newGameBtn = document.querySelector("#newBtn");
 let msg = document.querySelector("#msg");
-let msg2 = document.querySelector("#msg2");
 let msgContainer = document.querySelector(".msg-container");
 
-let turnX = true //playerO and playerX
+let turnX = true; // playerX starts
 
 const winPatterns = [
     [0, 1, 2],
@@ -20,66 +18,67 @@ const winPatterns = [
 ];
 
 const resetGame = () => {
-    trueX = true;
+    turnX = true;           // Fix typo here (was trueX)
     enableBoxes();
     msgContainer.classList.add("hide");
+    msg.innerText = "";
 };
 
 boxes.forEach((box) => {
-    box.addEventListener("click", () =>{
-    
-        if  (turnX) {
-            //playerX
+    box.addEventListener("click", () => {
+        if (turnX) {
             box.innerText = "X";
             turnX = false;
         } else {
-            //playerO
             box.innerText = "O";
             turnX = true;
         }
         box.disabled = true;
         checkWinner();
-        
     });
 });
 
 const disableBoxes = () => {
-    for (let box of boxes) {
-        box.disabled = true;
-    }
-}
+    boxes.forEach(box => box.disabled = true);
+};
 
 const enableBoxes = () => {
-    for (let box of boxes) {
+    boxes.forEach(box => {
         box.disabled = false;
-        box.innerText="";
-    }
-}
+        box.innerText = "";
+    });
+};
 
 const showWinner = (winner) => {
-    msg.innerText = `Congratutation, Winner is ${winner}`
+    msg.innerText = `Congratulations, Winner is ${winner}`;
     msgContainer.classList.remove("hide");
     disableBoxes();
-}
+};
 
-
+const checkDraw = () => {
+    // Check if all boxes are filled and no winner shown
+    let isDraw = Array.from(boxes).every(box => box.innerText !== "");
+    if(isDraw){
+        msg.innerText = "It's a Draw!";
+        msgContainer.classList.remove("hide");
+        disableBoxes();
+    }
+};
 
 const checkWinner = () => {
-    for(let pattern of winPatterns) {
-        //console.log(pattern[0], pattern[1], pattern[2]);
-        //console.log(boxes[pattern[0]], boxes[pattern[1]], boxes[pattern[2]]);
-     let posVal1 = boxes[pattern[0]].innerText;
-     let posVal2 = boxes[pattern[1]].innerText;
-     let posVal3 = boxes[pattern[2]].innerText;
+    for (let pattern of winPatterns) {
+        let [a, b, c] = pattern;
+        let posVal1 = boxes[a].innerText;
+        let posVal2 = boxes[b].innerText;
+        let posVal3 = boxes[c].innerText;
 
-     if(posVal1 != "" && posVal2 != "" && posVal3 !="") {
-     if (posVal1 == posVal2 && posVal2 == posVal3){
-       
-        showWinner(posVal1);
-     
-     }
+        if (posVal1 !== "" && posVal1 === posVal2 && posVal2 === posVal3) {
+            showWinner(posVal1);
+            return; // Stop checking after winner found
+        }
     }
- }
+    // If no winner, check for draw
+    checkDraw();
 };
 
 newGameBtn.addEventListener("click", resetGame);
